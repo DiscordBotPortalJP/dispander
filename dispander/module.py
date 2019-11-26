@@ -2,18 +2,19 @@ from discord import Embed
 from discord.ext import commands
 import re
 
+regex_discord_message_url = (
+    'https://(canary.)?discordapp.com/channels/'
+    '(?P<guild>[0-9]{18})/(?P<channel>[0-9]{18})/(?P<message>[0-9]{18})'
+)
+
 
 class ExpandDiscordMessageUrl(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.url_discord_message = (
-            'https://(canary.)?discordapp.com/channels/'
-            '(?P<guild>[0-9]{18})/(?P<channel>[0-9]{18})/(?P<message>[0-9]{18})'
-        )
 
     @commands.Cog.listener()
     async def on_message(self, message):
-        for ids in re.finditer(self.url_discord_message, message.content):
+        for ids in re.finditer(regex_discord_message_url, message.content):
             if message.guild.id == int(ids['guild']):
                 target_message = await fetch_message_from_id(
                     guild=message.guild,
