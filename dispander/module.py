@@ -36,7 +36,6 @@ async def extract_messsages(message):
             message_id=int(ids['message']),
         )
         messages.append(fetched_message)
-    )
     return messages
 
 
