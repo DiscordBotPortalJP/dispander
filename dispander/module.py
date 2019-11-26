@@ -14,17 +14,28 @@ class ExpandDiscordMessageUrl(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message):
-        for ids in re.finditer(regex_discord_message_url, message.content):
-            if message.guild.id == int(ids['guild']):
-                target_message = await fetch_message_from_id(
-                    guild=message.guild,
-                    channel_id=int(ids['channel']),
-                    message_id=int(ids['message']),
-                )
-                embed = compose_embed(target_message)
-            else:
-                embed = Embed(title='404')
-            await message.channel.send(embed=embed)
+        await dispand(message)
+
+
+async def dispand(message):
+    messages = await extract_messsages(message)
+    for m in messages:
+        await message.channel.send(embed=compose_embed(m))
+
+
+async def extract_messsages(message):
+    messages = []
+    for ids in re.finditer(regex_discord_message_url, message.content):
+        if message.guild.id != int(ids['guild']):
+            return
+        fetched_message = await fetch_message_from_id(
+            guild=message.guild,
+            channel_id=int(ids['channel']),
+            message_id=int(ids['message']),
+        )
+        messages.append(fetched_message)
+    )
+    return messages
 
 
 async def fetch_message_from_id(guild, channel_id, message_id):
