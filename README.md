@@ -23,7 +23,7 @@ on_message内のどこかで実行してください
 import discord
 from dispander import dispand
 
-client = discord.client()
+client = discord.Client()
 
 @client.event
 async def on_message(message):
