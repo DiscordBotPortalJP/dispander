@@ -9,6 +9,8 @@ DiscordのメッセージURLを検知して展開する機能をBotに追加で�
 
 # 使い方
 
+`python3 -m pip install dispander`
+
 ## extensionとして使用する場合
 
 load_extensionで読み込んでください
