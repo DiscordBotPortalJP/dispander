@@ -1,9 +1,6 @@
 # dispander
-Discord Message URL Expander
-
-# これはなに
-
-DiscordのメッセージURLを検知して展開する機能をBotに追加できます
+DiscordのメッセージURLを検知して展開する機能のライブラリ
+discord.pyのBotへの組み込み用
 
 <img width="789" src="https://user-images.githubusercontent.com/11159059/70523586-bc7b8280-1b86-11ea-87f3-aa3dade6ba51.png">
 
