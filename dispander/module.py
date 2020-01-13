@@ -22,7 +22,10 @@ class ExpandDiscordMessageUrl(commands.Cog):
 async def dispand(message):
     messages = await extract_messsages(message)
     for m in messages:
-        await message.channel.send(embed=compose_embed(m))
+        if message.content:
+            await message.channel.send(embed=compose_embed(m))
+        for embed in m.embeds:
+            await message.channel.send(embed=embed)
 
 
 async def extract_messsages(message):
