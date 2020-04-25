@@ -11,16 +11,17 @@ regex_discord_message_url = (
 class ExpandDiscordMessageUrl(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.allow_external_links = getattr(bot, 'allow_external_links', False) is True
 
     @commands.Cog.listener()
     async def on_message(self, message):
         if message.author.bot:
             return
-        await dispand(message)
+        await dispand(message, self.allow_external_links)
 
 
-async def dispand(message):
-    messages = await extract_messsages(message)
+async def dispand(message, allow_external_links=False):
+    messages = await extract_messsages(message, allow_external_links)
     for m in messages:
         if message.content:
             await message.channel.send(embed=compose_embed(m))
@@ -28,10 +29,10 @@ async def dispand(message):
             await message.channel.send(embed=embed)
 
 
-async def extract_messsages(message):
+async def extract_messsages(message, allow_external_links=False):
     messages = []
     for ids in re.finditer(regex_discord_message_url, message.content):
-        if message.guild.id != int(ids['guild']):
+        if not allow_external_links and message.guild.id != int(ids['guild']):
             return
         fetched_message = await fetch_message_from_id(
             guild=message.guild,
