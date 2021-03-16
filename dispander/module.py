@@ -20,7 +20,7 @@ class ExpandDiscordMessageUrl(commands.Cog):
 
 
 async def dispand(message):
-    messages = await extract_messsages(message)
+    messages = await extract_messsage(message)
     for m in messages:
         if message.content:
             await message.channel.send(embed=compose_embed(m))
@@ -28,7 +28,7 @@ async def dispand(message):
             await message.channel.send(embed=embed)
 
 
-async def extract_messsages(message):
+async def extract_messsage(message):
     messages = []
     for ids in re.finditer(regex_discord_message_url, message.content):
         if message.guild.id != int(ids['guild']):
