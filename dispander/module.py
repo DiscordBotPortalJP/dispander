@@ -32,7 +32,10 @@ async def extract_message(message):
     messages = []
     for ids in re.finditer(regex_discord_message_url, message.content):
         if message.guild.id != int(ids['guild']):
-            return
+            continue
+        elif ids.span()[0] > 0 and message.content[ids.span()[0] - 1] == "<" and message.content[ids.span()[1]] == ">":
+            continue
+
         fetched_message = await fetch_message_from_id(
             guild=message.guild,
             channel_id=int(ids['channel']),
