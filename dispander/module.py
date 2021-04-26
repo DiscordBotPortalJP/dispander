@@ -23,7 +23,7 @@ async def dispand(message):
     messages = await extract_message(message)
     for m in messages:
         if m.content:
-            await message.channel.send(embed=compose_embed(m), files=files)
+            await message.channel.send(embed=compose_embed(m))
         if len(m.attachments) >= 2:
             m.attachments.pop(0)
             for attachment in m.attachments:
