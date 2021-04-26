@@ -22,13 +22,16 @@ class ExpandDiscordMessageUrl(commands.Cog):
 async def dispand(message):
     messages = await extract_message(message)
     for m in messages:
-        files = []
+        if m.content:
+            await message.channel.send(embed=compose_embed(m), files=files)
         if len(m.attachments) >= 2:
             m.attachments.pop(0)
             for attachment in m.attachments:
-                files.append(await attachment.to_file())
-        if m.content:
-            await message.channel.send(embed=compose_embed(m), files=files)
+                atm_em = Embed()
+                atm_em.set_image(
+                    url=attachment.proxy_url
+                )
+                await message.channel.send(embed=atm_em)
         for embed in m.embeds:
             await message.channel.send(embed=embed)
 
