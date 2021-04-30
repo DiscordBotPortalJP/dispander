@@ -3,8 +3,8 @@ from discord.ext import commands
 import re
 
 regex_discord_message_url = (
-    'https://(ptb.|canary.)?discord(app)?.com/channels/'
-    '(?P<guild>[0-9]{18})/(?P<channel>[0-9]{18})/(?P<message>[0-9]{18})'
+    '(?!<)https://(ptb.|canary.)?discord(app)?.com/channels/'
+    '(?P<guild>[0-9]{18})/(?P<channel>[0-9]{18})/(?P<message>[0-9]{18})(?!>)'
 )
 
 
