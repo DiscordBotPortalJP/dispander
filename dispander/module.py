@@ -24,6 +24,13 @@ async def dispand(message):
     for m in messages:
         if m.content or m.attachments:
             await message.channel.send(embed=compose_embed(m))
+        # Send the second and subsequent attachments with embed (named 'embed') respectively:
+        for attachment in m.attachments[1:]:
+            embed = Embed()
+            embed.set_image(
+                url=attachment.proxy_url
+            )
+            await message.channel.send(embed=embed)
         for embed in m.embeds:
             await message.channel.send(embed=embed)
 
