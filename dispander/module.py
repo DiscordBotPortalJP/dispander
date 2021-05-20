@@ -35,7 +35,7 @@ async def delete_dispand_messages_by_reaction(bot: discord.Client, payload_or_re
     if isinstance(payload_or_reaction, discord.RawReactionActionEvent):
         # when on_raw_reaction_add event
         payload = payload_or_reaction
-        if str(payload.emoji) != "\U0001f5d1":
+        if str(payload.emoji) != DELETE_REACTION_EMOJI:
             return
         if payload.user_id == bot.user.id:
             return
@@ -97,7 +97,7 @@ async def dispand(message):
 
         # 一番先頭のメッセージにゴミ箱のリアクションをつける
         main_message = sent_messages.pop(0)
-        await main_message.add_reaction("\U0001f5d1")
+        await main_message.add_reaction(DELETE_REACTION_EMOJI)
         main_embed = main_message.embeds[0]
         main_embed.set_author(
             name=getattr(main_embed.author, "name", EmptyEmbed),
