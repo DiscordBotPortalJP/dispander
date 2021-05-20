@@ -13,6 +13,7 @@ regex_extra_url = (
     '&aid=(?P<author_id>[0-9]{18})'
     '&extra=(?P<extra_messages>[0-9,]+)'
 )
+DELETE_REACTION_EMOJI = "\U0001f5d1"
 
 
 class ExpandDiscordMessageUrl(commands.Cog):
@@ -27,29 +28,50 @@ class ExpandDiscordMessageUrl(commands.Cog):
 
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload: discord.RawReactionActionEvent):
+        await delete_dispand_messages_by_reaction(self.bot, payload)
+
+
+async def delete_dispand_messages_by_reaction(bot: discord.Client, payload_or_reaction, user=None):
+    if isinstance(payload_or_reaction, discord.RawReactionActionEvent):
+        # when on_raw_reaction_add event
+        payload = payload_or_reaction
         if str(payload.emoji) != "\U0001f5d1":
             return
-        if payload.user_id == self.bot.user.id:
+        if payload.user_id == bot.user.id:
             return
 
-        channel = self.bot.get_channel(payload.channel_id)
+        channel = bot.get_channel(payload.channel_id)
         message = await channel.fetch_message(payload.message_id)
-        if message.author.id != self.bot.user.id:
+        await delete_dispand_messages(bot, message, payload.user_id)
+    elif isinstance(payload_or_reaction, discord.Reaction):
+        # when on_reaction_add event
+        reaction = payload_or_reaction
+        if str(reaction.emoji) != DELETE_REACTION_EMOJI:
             return
-        elif not message.embeds:
+        if user.id == bot.user.id:
             return
+        await delete_dispand_messages(bot, reaction.message, user.id)
+    else:
+        raise ValueError("payload_or_reaction must be discord.RawReactionActionEvent or discord.Reaction")
 
-        embed = message.embeds[0]
-        if getattr(embed.author, "url", None) is None:
-            return
-        data = from_jump_url(embed.author.url)
-        if not (data["base_author_id"] == payload.user_id or data["author_id"] == payload.user_id):
-            return
-        await message.delete()
-        for message_id in data["extra_messages"]:
-            extra_message = await channel.fetch_message(message_id)
-            if extra_message is not None:
-                await extra_message.delete()
+
+async def delete_dispand_messages(bot: discord.Client, message: discord.Message, operator_id: int):
+    if message.author.id != bot.user.id:
+        return
+    elif not message.embeds:
+        return
+
+    embed = message.embeds[0]
+    if getattr(embed.author, "url", None) is None:
+        return
+    data = from_jump_url(embed.author.url)
+    if not (data["base_author_id"] == operator_id or data["author_id"] == operator_id):
+        return
+    await message.delete()
+    for message_id in data["extra_messages"]:
+        extra_message = await message.channel.fetch_message(message_id)
+        if extra_message is not None:
+            await extra_message.delete()
 
 
 async def dispand(message):
