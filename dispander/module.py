@@ -1,3 +1,5 @@
+from typing import Optional
+
 import discord
 from discord import Embed
 from discord.embeds import EmptyEmbed
@@ -28,13 +30,16 @@ class ExpandDiscordMessageUrl(commands.Cog):
 
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload: discord.RawReactionActionEvent):
-        await delete_dispand_messages_by_reaction(self.bot, payload)
+        await delete_dispand(self.bot, payload=payload)
 
 
-async def delete_dispand_messages_by_reaction(bot: discord.Client, payload_or_reaction, user=None):
-    if isinstance(payload_or_reaction, discord.RawReactionActionEvent):
+async def delete_dispand(bot: discord.Client,
+                         *,
+                         payload: Optional[discord.RawReactionActionEvent] = None,
+                         reaction: Optional[discord.Reaction] = None,
+                         user: Optional[discord.User] = None):
+    if payload is not None:
         # when on_raw_reaction_add event
-        payload = payload_or_reaction
         if str(payload.emoji) != DELETE_REACTION_EMOJI:
             return
         if payload.user_id == bot.user.id:
@@ -42,20 +47,19 @@ async def delete_dispand_messages_by_reaction(bot: discord.Client, payload_or_re
 
         channel = bot.get_channel(payload.channel_id)
         message = await channel.fetch_message(payload.message_id)
-        await delete_dispand_messages(bot, message, payload.user_id)
-    elif isinstance(payload_or_reaction, discord.Reaction):
+        await _delete_dispand(bot, message, payload.user_id)
+    elif reaction is not None:
         # when on_reaction_add event
-        reaction = payload_or_reaction
         if str(reaction.emoji) != DELETE_REACTION_EMOJI:
             return
         if user.id == bot.user.id:
             return
-        await delete_dispand_messages(bot, reaction.message, user.id)
+        await _delete_dispand(bot, reaction.message, user.id)
     else:
-        raise ValueError("payload_or_reaction must be discord.RawReactionActionEvent or discord.Reaction")
+        raise ValueError("payload or reaction must be setted")
 
 
-async def delete_dispand_messages(bot: discord.Client, message: discord.Message, operator_id: int):
+async def _delete_dispand(bot: discord.Client, message: discord.Message, operator_id: int):
     if message.author.id != bot.user.id:
         return
     elif not message.embeds:
