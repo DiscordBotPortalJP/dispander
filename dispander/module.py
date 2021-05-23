@@ -13,7 +13,7 @@ regex_discord_message_url = (
 regex_extra_url = (
     r'\?base_aid=(?P<base_author_id>[0-9]{18})'
     '&aid=(?P<author_id>[0-9]{18})'
-    '&extra=(?P<extra_messages>[0-9,]+)'
+    '&extra=(?P<extra_messages>(|[0-9,]+))'
 )
 DELETE_REACTION_EMOJI = "\U0001f5d1"
 
@@ -160,7 +160,7 @@ def from_jump_url(url):
     return {
         "base_author_id": int(data["base_author_id"]),
         "author_id": int(data["author_id"]),
-        "extra_messages": [int(_id) for _id in data["extra_messages"].split(",")]
+        "extra_messages": [int(_id) for _id in data["extra_messages"].split(",")] if data["extra_messages"] else []
     }
 
 
