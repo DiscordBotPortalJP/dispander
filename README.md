@@ -26,6 +26,8 @@ on_message内のどこかで実行してください。
 展開したメッセージを消去する機能を使用するには`on_reaction_add`イベントもしくは`on_raw_reaction_add`イベントのどちらかでdelete_dispand関数を実行してください。
 on_raw_reaction_addの場合はキーワード引数`payload`にRawReactionActionEventを、on_reaction_addの場合はキーワード引数`user`にUser、`reaction`にReactionを指定して下さい。
 
+消去の際のリアクションを変更したい場合は環境変数`DELETE_REACTION_EMOJI`に絵文字を設定してください。
+
 ```python
 import discord
 from dispander import dispand, delete_dispand

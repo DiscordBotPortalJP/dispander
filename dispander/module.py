@@ -1,4 +1,5 @@
 from typing import Optional
+import os
 
 import discord
 from discord import Embed
@@ -15,7 +16,7 @@ regex_extra_url = (
     '&aid=(?P<author_id>[0-9]{18})'
     '&extra=(?P<extra_messages>(|[0-9,]+))'
 )
-DELETE_REACTION_EMOJI = "\U0001f5d1"
+DELETE_REACTION_EMOJI = os.environ.get("DELETE_REACTION_EMOJI", "\U0001f5d1")
 
 
 class ExpandDiscordMessageUrl(commands.Cog):
