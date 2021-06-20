@@ -12,15 +12,15 @@ async def add_deleter(original_message: discord.Message,
                       quote_message: discord.Message,
                       sent_messages: List[discord.Message]):
     # 一番先頭のメッセージにゴミ箱のリアクションをつける
-    main_message = sent_messages.pop(0)
-    await main_message.add_reaction(DELETE_REACTION_EMOJI)
-    main_embed = main_message.embeds[0]
-    main_embed.set_author(
-        name=getattr(main_embed.author, 'name', EmptyEmbed),
-        icon_url=getattr(main_embed.author, 'icon_url', EmptyEmbed),
+    first_message = sent_messages.pop(0)
+    await first_message.add_reaction(DELETE_REACTION_EMOJI)
+    first_embed = first_message.embeds[0]
+    first_embed.set_author(
+        name=getattr(first_embed.author, 'name', EmptyEmbed),
+        icon_url=getattr(first_embed.author, 'icon_url', EmptyEmbed),
         url=make_jump_url(original_message, quote_message, sent_messages)
     )
-    await main_message.edit(embed=main_embed)
+    await first_message.edit(embed=first_embed)
 
 
 async def delete_dispand(bot: discord.Client,
