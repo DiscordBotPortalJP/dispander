@@ -1,10 +1,8 @@
 from discord import Embed
 from discord.ext import commands
 from dispander.delete import delete_dispand
-from dispander.delete import make_jump_url
+from dispander.delete import add_deleter
 from dispander.constants import regex_discord_message_url
-from dispander.constants import DELETE_REACTION_EMOJI
-from discord.embeds import EmptyEmbed
 import re
 import discord
 
@@ -45,17 +43,7 @@ async def dispand(message):
             sent_embed_message = await message.channel.send(embed=embed)
             sent_messages.append(sent_embed_message)
 
-        # 一番先頭のメッセージにゴミ箱のリアクションをつける
-        main_message = sent_messages.pop(0)
-        await main_message.add_reaction(DELETE_REACTION_EMOJI)
-        main_embed = main_message.embeds[0]
-        main_embed.set_author(
-            name=getattr(main_embed.author, "name", EmptyEmbed),
-            icon_url=getattr(main_embed.author, "icon_url", EmptyEmbed),
-            url=make_jump_url(message, m, sent_messages)
-        )
-        await main_message.edit(embed=main_embed)
-
+        await add_deleter(message, m, sent_messages)
 
 async def extract_message(message):
     messages = []
