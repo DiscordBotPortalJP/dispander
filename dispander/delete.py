@@ -9,8 +9,8 @@ import discord
 
 
 async def add_deleter(original_message: discord.Message,
-                                  quote_message: discord.Message,
-                                  sent_messages: List[discord.Message]):
+                      quote_message: discord.Message,
+                      sent_messages: List[discord.Message]):
     # 一番先頭のメッセージにゴミ箱のリアクションをつける
     main_message = sent_messages.pop(0)
     await main_message.add_reaction(DELETE_REACTION_EMOJI)

@@ -45,6 +45,7 @@ async def dispand(message):
 
         await add_deleter(message, m, sent_messages)
 
+
 async def extract_message(message):
     messages = []
     for ids in re.finditer(regex_discord_message_url, message.content):
