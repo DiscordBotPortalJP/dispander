@@ -1,5 +1,6 @@
 from typing import List
 from typing import Optional
+from discord.ext import commands
 from discord.embeds import EmptyEmbed
 from dispander.constants import regex_discord_message_url
 from dispander.constants import regex_extra_url
@@ -7,6 +8,18 @@ from dispander.constants import DELETE_REACTION_EMOJI
 import re
 import discord
 
+
+class DeleteExpandedMessage(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+
+    @commands.Cog.listener()
+    async def on_raw_reaction_add(self, payload: discord.RawReactionActionEvent):
+        await _on_raw_reaction_add(self.bot, payload)
+
+    @commands.Cog.listener()
+    async def on_reaction_add(self, reaction: discord.Reaction, user: discord.User):
+        await _on_reaction_add(self.bot, reaction, user)
 
 def is_emoji_for_deletion(emoji):
     return str(emoji) == DELETE_REACTION_EMOJI
@@ -27,33 +40,25 @@ async def add_deleter(original_message: discord.Message,
     await first_message.edit(embed=first_embed)
 
 
-async def delete_dispand(bot: discord.Client,
-                         *,
-                         payload: Optional[discord.RawReactionActionEvent] = None,
-                         reaction: Optional[discord.Reaction] = None,
-                         user: Optional[discord.User] = None):
-    if payload is not None:
-        # when on_raw_reaction_add event
-        if not is_emoji_for_deletion(payload.emoji):
-            return
-        if payload.user_id == bot.user.id:
-            return
-
-        channel = bot.get_channel(payload.channel_id)
-        message = await channel.fetch_message(payload.message_id)
-        await _delete_dispand(bot, message, payload.user_id)
-    elif reaction is not None:
-        # when on_reaction_add event
-        if not is_emoji_for_deletion(reaction.emoji):
-            return
-        if user.id == bot.user.id:
-            return
-        await _delete_dispand(bot, reaction.message, user.id)
-    else:
-        raise ValueError('payload or reaction must be setted')
+async def _on_raw_reaction_add(bot: discord.Client, payload: discord.RawReactionActionEvent):
+    if not is_emoji_for_deletion(payload.emoji):
+        return
+    if payload.user_id == bot.user.id:
+        return
+    channel = bot.get_channel(payload.channel_id)
+    message = await channel.fetch_message(payload.message_id)
+    await delete_expanded_message(bot, message, payload.user_id)
 
 
-async def _delete_dispand(bot: discord.Client, message: discord.Message, operator_id: int):
+async def _on_reaction_add(bot: discord.Client, reaction: discord.Reaction, user: discord.User):
+    if not is_emoji_for_deletion(reaction.emoji):
+        return
+    if user.id == bot.user.id:
+        return
+    await delete_expanded_message(bot, reaction.message, user.id)
+
+
+async def delete_expanded_message(bot: discord.Client, message: discord.Message, operator_id: int):
     if message.author.id != bot.user.id:
         return
     elif not message.embeds:

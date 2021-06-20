@@ -1,6 +1,6 @@
 from discord import Embed
 from discord.ext import commands
-from dispander.delete import delete_dispand
+from dispander.delete import DeleteExpandedMessage
 from dispander.delete import add_deleter
 from dispander.constants import regex_discord_message_url
 import re
@@ -16,10 +16,6 @@ class ExpandDiscordMessageUrl(commands.Cog):
         if message.author.bot:
             return
         await dispand(message)
-
-    @commands.Cog.listener()
-    async def on_raw_reaction_add(self, payload: discord.RawReactionActionEvent):
-        await delete_dispand(self.bot, payload=payload)
 
 
 async def dispand(message):
@@ -89,3 +85,4 @@ def compose_embed(message):
 
 def setup(bot):
     bot.add_cog(ExpandDiscordMessageUrl(bot))
+    bot.add_cog(DeleteExpandedMessage(bot))
