@@ -11,4 +11,4 @@ regex_extra_url = (
     '&extra=(?P<extra_messages>(|[0-9,]+))'
 )
 
-DELETE_REACTION_EMOJI = os.environ.get("DELETE_REACTION_EMOJI", "\U0001f5d1")
+DELETE_REACTION_EMOJI = os.environ.get('DELETE_REACTION_EMOJI', '\U0001f5d1')

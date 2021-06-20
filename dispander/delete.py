@@ -16,8 +16,8 @@ async def add_deleter(original_message: discord.Message,
     await main_message.add_reaction(DELETE_REACTION_EMOJI)
     main_embed = main_message.embeds[0]
     main_embed.set_author(
-        name=getattr(main_embed.author, "name", EmptyEmbed),
-        icon_url=getattr(main_embed.author, "icon_url", EmptyEmbed),
+        name=getattr(main_embed.author, 'name', EmptyEmbed),
+        icon_url=getattr(main_embed.author, 'icon_url', EmptyEmbed),
         url=make_jump_url(original_message, quote_message, sent_messages)
     )
     await main_message.edit(embed=main_embed)
@@ -46,7 +46,7 @@ async def delete_dispand(bot: discord.Client,
             return
         await _delete_dispand(bot, reaction.message, user.id)
     else:
-        raise ValueError("payload or reaction must be setted")
+        raise ValueError('payload or reaction must be setted')
 
 
 async def _delete_dispand(bot: discord.Client, message: discord.Message, operator_id: int):
@@ -56,13 +56,13 @@ async def _delete_dispand(bot: discord.Client, message: discord.Message, operato
         return
 
     embed = message.embeds[0]
-    if getattr(embed.author, "url", None) is None:
+    if getattr(embed.author, 'url', None) is None:
         return
     data = from_jump_url(embed.author.url)
-    if not (data["base_author_id"] == operator_id or data["author_id"] == operator_id):
+    if not (data['base_author_id'] == operator_id or data['author_id'] == operator_id):
         return
     await message.delete()
-    for message_id in data["extra_messages"]:
+    for message_id in data['extra_messages']:
         extra_message = await message.channel.fetch_message(message_id)
         if extra_message is not None:
             await extra_message.delete()
@@ -78,11 +78,11 @@ def make_jump_url(base_message, dispand_message, extra_messages):
     """
     # base_aid: メッセージリンクで飛べる最初のメッセージの送信者のid
     # aid: メッセージリンクを送信したユーザーのid
-    return "{0.jump_url}?base_aid={1.id}&aid={2.id}&extra={3}".format(
+    return '{0.jump_url}?base_aid={1.id}&aid={2.id}&extra={3}'.format(
         dispand_message,
         dispand_message.author,
         base_message.author,
-        ",".join([str(i.id) for i in extra_messages])
+        ','.join([str(i.id) for i in extra_messages])
     )
 
 
@@ -95,7 +95,7 @@ def from_jump_url(url):
     base_url_match = re.match(regex_discord_message_url + regex_extra_url, url)
     data = base_url_match.groupdict()
     return {
-        "base_author_id": int(data["base_author_id"]),
-        "author_id": int(data["author_id"]),
-        "extra_messages": [int(_id) for _id in data["extra_messages"].split(",")] if data["extra_messages"] else []
+        'base_author_id': int(data['base_author_id']),
+        'author_id': int(data['author_id']),
+        'extra_messages': [int(_id) for _id in data['extra_messages'].split(',')] if data['extra_messages'] else []
     }
