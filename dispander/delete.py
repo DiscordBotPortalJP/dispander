@@ -8,6 +8,10 @@ import re
 import discord
 
 
+def is_emoji_for_deletion(emoji):
+    return str(emoji) == DELETE_REACTION_EMOJI
+
+
 async def add_deleter(original_message: discord.Message,
                       quote_message: discord.Message,
                       sent_messages: List[discord.Message]):
@@ -30,7 +34,7 @@ async def delete_dispand(bot: discord.Client,
                          user: Optional[discord.User] = None):
     if payload is not None:
         # when on_raw_reaction_add event
-        if str(payload.emoji) != DELETE_REACTION_EMOJI:
+        if not is_emoji_for_deletion(payload.emoji):
             return
         if payload.user_id == bot.user.id:
             return
@@ -40,7 +44,7 @@ async def delete_dispand(bot: discord.Client,
         await _delete_dispand(bot, message, payload.user_id)
     elif reaction is not None:
         # when on_reaction_add event
-        if str(reaction.emoji) != DELETE_REACTION_EMOJI:
+        if not is_emoji_for_deletion(reaction.emoji):
             return
         if user.id == bot.user.id:
             return
