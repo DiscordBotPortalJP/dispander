@@ -43,9 +43,7 @@ async def extract_messsages(message):
 
 
 async def fetch_message_from_id(guild, channel_id, message_id):
-    channel = guild.get_channel(channel_id)
-    if channel is None:
-        channel = guild.get_thread(channel_id)
+    channel = guild.get_channel_or_thread(channel_id)
     message = await channel.fetch_message(message_id)
     return message
 
