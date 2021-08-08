@@ -172,12 +172,12 @@ def compose_embed(message):
     )
     embed.set_author(
         name=message.author.display_name,
-        icon_url=message.author.avatar.url,
+        icon_url=message.author.avatar_url,
         url=message.jump_url
     )
     embed.set_footer(
         text=message.channel.name,
-        icon_url=message.guild.icon.url,
+        icon_url=message.guild.icon_url,
     )
     if message.attachments and message.attachments[0].proxy_url:
         embed.set_image(
