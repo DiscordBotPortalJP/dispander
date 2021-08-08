@@ -103,10 +103,14 @@ async def dispand(message):
         # 一番先頭のメッセージにゴミ箱のリアクションをつける
         main_message = sent_messages.pop(0)
         await main_message.add_reaction(DELETE_REACTION_EMOJI)
+        if hasattr(main_embed.author, "icon"):
+            icon_url = main_embed.author.icon.url
+        else:
+            icon_url = EmptyEmbed
         main_embed = main_message.embeds[0]
         main_embed.set_author(
             name=getattr(main_embed.author, "name", EmptyEmbed),
-            icon_url=getattr(main_embed.author, "icon_url", EmptyEmbed),
+            icon_url=icon_url,
             url=make_jump_url(message, m, sent_messages)
         )
         await main_message.edit(embed=main_embed)
@@ -127,7 +131,7 @@ async def extract_message(message):
 
 
 async def fetch_message_from_id(guild, channel_id, message_id):
-    channel = guild.get_channel(channel_id)
+    channel = guild.get_channel_or_thread(channel_id)
     message = await channel.fetch_message(message_id)
     return message
 
@@ -172,12 +176,12 @@ def compose_embed(message):
     )
     embed.set_author(
         name=message.author.display_name,
-        icon_url=message.author.avatar_url,
+        icon_url=message.author.avatar.url,
         url=message.jump_url
     )
     embed.set_footer(
         text=message.channel.name,
-        icon_url=message.guild.icon_url,
+        icon_url=message.guild.icon.url,
     )
     if message.attachments and message.attachments[0].proxy_url:
         embed.set_image(
