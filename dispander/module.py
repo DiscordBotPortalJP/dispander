@@ -102,12 +102,12 @@ async def dispand(message):
 
         # 一番先頭のメッセージにゴミ箱のリアクションをつける
         main_message = sent_messages.pop(0)
+        main_embed = main_message.embeds[0]
         await main_message.add_reaction(DELETE_REACTION_EMOJI)
-        if hasattr(main_embed.author, "icon"):
+        if hasattr(main_embed.author.icon, "url"):
             icon_url = main_embed.author.icon.url
         else:
             icon_url = EmptyEmbed
-        main_embed = main_message.embeds[0]
         main_embed.set_author(
             name=getattr(main_embed.author, "name", EmptyEmbed),
             icon_url=icon_url,
