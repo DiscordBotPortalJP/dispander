@@ -175,6 +175,15 @@ def compose_embed(message):
         icon_url=message.author.avatar_url,
         url=message.jump_url
     )
+    if message.guild.icon is None:
+        embed.set_footer(
+            text=message.channel.name,
+        )
+    else:
+        embed.set_footer(
+            text=message.channel.name,
+            icon_url=message.guild.icon_url,
+        )
     embed.set_footer(
         text=message.channel.name,
         icon_url=message.guild.icon_url,
