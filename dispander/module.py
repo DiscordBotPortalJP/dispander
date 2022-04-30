@@ -9,11 +9,11 @@ import re
 
 regex_discord_message_url = (
     '(?!<)https://(ptb.|canary.)?discord(app)?.com/channels/'
-    '(?P<guild>[0-9]{18,20})/(?P<channel>[0-9]{18,20})/(?P<message>[0-9]{18,20})(?!>)'
+    '(?P<guild>[0-9]{17,20})/(?P<channel>[0-9]{17,20})/(?P<message>[0-9]{17,20})(?!>)'
 )
 regex_extra_url = (
-    r'\?base_aid=(?P<base_author_id>[0-9]{18,20})'
-    '&aid=(?P<author_id>[0-9]{18,20})'
+    r'\?base_aid=(?P<base_author_id>[0-9]{17,20})'
+    '&aid=(?P<author_id>[0-9]{17,20})'
     '&extra=(?P<extra_messages>(|[0-9,]+))'
 )
 DELETE_REACTION_EMOJI = os.environ.get("DELETE_REACTION_EMOJI", "\U0001f5d1")
