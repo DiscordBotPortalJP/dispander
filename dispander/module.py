@@ -171,12 +171,12 @@ def compose_embed(message):
     )
     embed.set_author(
         name=message.author.display_name,
-        icon_url=message.author.avatar if message.author.avatar is not None else f'{discord.Asset.BASE}/embed/avatars/{discord.DefaultAvatar.red}.png',
+        icon_url=message.author.avatar or f'{discord.Asset.BASE}/embed/avatars/{discord.DefaultAvatar.red}.png',
         url=message.jump_url
     )
     embed.set_footer(
         text=message.channel.name,
-        icon_url=message.guild.icon if message.guild.icon is not None else f'{discord.Asset.BASE}/embed/avatars/{discord.DefaultAvatar.red}.png',
+        icon_url=message.guild.icon or f'{discord.Asset.BASE}/embed/avatars/{discord.DefaultAvatar.red}.png',
     )
     if message.attachments and message.attachments[0].proxy_url:
         embed.set_image(
