@@ -3,7 +3,6 @@ import os
 
 import discord
 from discord import Embed
-from discord.embeds import EmptyEmbed
 from discord.ext import commands
 import re
 
@@ -107,9 +106,9 @@ async def dispand(message):
         if hasattr(main_embed.author.icon, "url"):
             icon_url = main_embed.author.icon.url
         else:
-            icon_url = EmptyEmbed
+            icon_url = None
         main_embed.set_author(
-            name=getattr(main_embed.author, "name", EmptyEmbed),
+            name=getattr(main_embed.author, "name", None),
             icon_url=icon_url,
             url=make_jump_url(message, m, sent_messages)
         )
