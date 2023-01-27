@@ -11,5 +11,6 @@ async def main():
         await bot.load_extension('dispander')
         await bot.start(os.getenv('DISCORD_BOT_TOKEN'))
 
+
 if __name__ == '__main__':
     asyncio.run(main())
