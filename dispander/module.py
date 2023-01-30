@@ -3,7 +3,6 @@ import os
 
 import discord
 from discord import Embed
-from discord.embeds import EmptyEmbed
 from discord.ext import commands
 import re
 
@@ -109,8 +108,8 @@ async def dispand(message):
         else:
             icon_url = EmptyEmbed
         main_embed.set_author(
-            name=getattr(main_embed.author, "name", EmptyEmbed),
-            icon_url=icon_url,
+            name=getattr(main_embed.author, "name", None),
+            icon_url=getattr(main_embed.author, "icon_url", None),
             url=make_jump_url(message, m, sent_messages)
         )
         await main_message.edit(embed=main_embed)
@@ -178,12 +177,12 @@ def compose_embed(message):
     )
     embed.set_author(
         name=message.author.display_name,
-        icon_url=message.author.avatar.url,
+        icon_url=message.author.avatar or f'{discord.Asset.BASE}/embed/avatars/{discord.DefaultAvatar.red}.png',
         url=message.jump_url
     )
     embed.set_footer(
         text=message.channel.name,
-        icon_url=message.guild.icon.url,
+        icon_url=message.guild.icon or f'{discord.Asset.BASE}/embed/avatars/{discord.DefaultAvatar.red}.png',
     )
     if message.attachments and message.attachments[0].proxy_url:
         embed.set_image(
