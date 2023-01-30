@@ -1,10 +1,8 @@
-from typing import Optional
 import os
-
-import discord
-from discord import Embed
-from discord.ext import commands
 import re
+from typing import Optional
+import discord
+from discord.embeds import EmptyEmbed
 
 regex_discord_message_url = (
     '(?!<)https://(ptb.|canary.)?discord(app)?.com/channels/'
@@ -18,19 +16,84 @@ regex_extra_url = (
 DELETE_REACTION_EMOJI = os.environ.get("DELETE_REACTION_EMOJI", "\U0001f5d1")
 
 
-class ExpandDiscordMessageUrl(commands.Cog):
-    def __init__(self, bot):
-        self.bot = bot
+def compose_embed(message):
+    embed = discord.Embed(
+        description=message.content,
+        timestamp=message.created_at,
+    )
+    embed.set_author(
+        name=message.author.display_name,
+        icon_url=message.author.avatar.url,
+        url=message.jump_url
+    )
+    embed.set_footer(
+        text=message.channel.name,
+        icon_url=message.guild.icon.url,
+    )
+    if message.attachments and message.attachments[0].proxy_url:
+        embed.set_image(
+            url=message.attachments[0].proxy_url
+        )
+    return embed
 
-    @commands.Cog.listener()
-    async def on_message(self, message):
-        if message.author.bot:
-            return
-        await dispand(message)
 
-    @commands.Cog.listener()
-    async def on_raw_reaction_add(self, payload: discord.RawReactionActionEvent):
-        await delete_dispand(self.bot, payload=payload)
+async def dispand(message):
+    messages = await extract_message(message)
+    for m in messages:
+        sent_messages = []
+
+        if m.content or m.attachments:
+            sent_message = await message.channel.send(embed=compose_embed(m))
+            sent_messages.append(sent_message)
+        # Send the second and subsequent attachments with embed (named 'embed') respectively:
+        for attachment in m.attachments[1:]:
+            embed = discord.Embed()
+            embed.set_image(
+                url=attachment.proxy_url
+            )
+            sent_attachment_message = await message.channel.send(embed=embed)
+            sent_messages.append(sent_attachment_message)
+
+        for embed in m.embeds:
+            sent_embed_message = await message.channel.send(embed=embed)
+            sent_messages.append(sent_embed_message)
+
+        # 一番先頭のメッセージにゴミ箱のリアクションをつける
+        main_message = sent_messages.pop(0)
+        main_embed = main_message.embeds[0]
+        await main_message.add_reaction(DELETE_REACTION_EMOJI)
+        if hasattr(main_embed.author.icon, "url"):
+            icon_url = main_embed.author.icon.url
+        else:
+            icon_url = EmptyEmbed
+        main_embed.set_author(
+            name=getattr(main_embed.author, "name", None),
+            icon_url=icon_url,
+            url=make_jump_url(message, m, sent_messages)
+        )
+        await main_message.edit(embed=main_embed)
+
+
+async def extract_message(message):
+    messages = []
+    for ids in re.finditer(regex_discord_message_url, message.content):
+        if message.guild.id != int(ids['guild']):
+            continue
+        fetched_message = await fetch_message_from_id(
+            guild=message.guild,
+            channel_id=int(ids['channel']),
+            message_id=int(ids['message']),
+        )
+        messages.append(fetched_message)
+    return messages
+
+
+async def fetch_message_from_id(guild, channel_id, message_id):
+    channel = guild.get_channel_or_thread(channel_id)
+    if channel is None:
+        channel = await guild.fetch_channel(channel_id)
+    message = await channel.fetch_message(message_id)
+    return message
 
 
 async def delete_dispand(bot: discord.Client,
@@ -78,59 +141,6 @@ async def _delete_dispand(bot: discord.Client, message: discord.Message, operato
             await extra_message.delete()
 
 
-async def dispand(message):
-    messages = await extract_message(message)
-    for m in messages:
-        sent_messages = []
-
-        if m.content or m.attachments:
-            sent_message = await message.channel.send(embed=compose_embed(m))
-            sent_messages.append(sent_message)
-        # Send the second and subsequent attachments with embed (named 'embed') respectively:
-        for attachment in m.attachments[1:]:
-            embed = Embed()
-            embed.set_image(
-                url=attachment.proxy_url
-            )
-            sent_attachment_message = await message.channel.send(embed=embed)
-            sent_messages.append(sent_attachment_message)
-
-        for embed in m.embeds:
-            sent_embed_message = await message.channel.send(embed=embed)
-            sent_messages.append(sent_embed_message)
-
-        # 一番先頭のメッセージにゴミ箱のリアクションをつける
-        main_message = sent_messages.pop(0)
-        await main_message.add_reaction(DELETE_REACTION_EMOJI)
-        main_embed = main_message.embeds[0]
-        main_embed.set_author(
-            name=getattr(main_embed.author, "name", None),
-            icon_url=getattr(main_embed.author, "icon_url", None),
-            url=make_jump_url(message, m, sent_messages)
-        )
-        await main_message.edit(embed=main_embed)
-
-
-async def extract_message(message):
-    messages = []
-    for ids in re.finditer(regex_discord_message_url, message.content):
-        if message.guild.id != int(ids['guild']):
-            continue
-        fetched_message = await fetch_message_from_id(
-            guild=message.guild,
-            channel_id=int(ids['channel']),
-            message_id=int(ids['message']),
-        )
-        messages.append(fetched_message)
-    return messages
-
-
-async def fetch_message_from_id(guild, channel_id, message_id):
-    channel = guild.get_channel(channel_id)
-    message = await channel.fetch_message(message_id)
-    return message
-
-
 def make_jump_url(base_message, dispand_message, extra_messages):
     """
     make jump url which include more information
@@ -162,28 +172,3 @@ def from_jump_url(url):
         "author_id": int(data["author_id"]),
         "extra_messages": [int(_id) for _id in data["extra_messages"].split(",")] if data["extra_messages"] else []
     }
-
-
-def compose_embed(message):
-    embed = Embed(
-        description=message.content,
-        timestamp=message.created_at,
-    )
-    embed.set_author(
-        name=message.author.display_name,
-        icon_url=message.author.avatar or f'{discord.Asset.BASE}/embed/avatars/{discord.DefaultAvatar.red}.png',
-        url=message.jump_url
-    )
-    embed.set_footer(
-        text=message.channel.name,
-        icon_url=message.guild.icon or f'{discord.Asset.BASE}/embed/avatars/{discord.DefaultAvatar.red}.png',
-    )
-    if message.attachments and message.attachments[0].proxy_url:
-        embed.set_image(
-            url=message.attachments[0].proxy_url
-        )
-    return embed
-
-
-def setup(bot):
-    bot.add_cog(ExpandDiscordMessageUrl(bot))
