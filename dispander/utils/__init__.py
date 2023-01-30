@@ -4,7 +4,6 @@ from typing import Optional
 import discord
 from discord.embeds import EmptyEmbed
 
-
 regex_discord_message_url = (
     '(?!<)https://(ptb.|canary.)?discord(app)?.com/channels/'
     '(?P<guild>[0-9]{17,20})/(?P<channel>[0-9]{17,20})/(?P<message>[0-9]{17,20})(?!>)'
@@ -68,7 +67,7 @@ async def dispand(message):
         else:
             icon_url = EmptyEmbed
         main_embed.set_author(
-            name=getattr(main_embed.author, "name", EmptyEmbed),
+            name=getattr(main_embed.author, "name", None),
             icon_url=icon_url,
             url=make_jump_url(message, m, sent_messages)
         )
